@@ -17,5 +17,5 @@ last_month_days.times { print "\s\s\s" }
   date = Date.new(year, month, d)
   day = Date.today == date ? "\e[30m\e[47m\e[5m" + date.strftime("%e") + "\e[0m" : date.strftime("%e")
 
-  print day + "#{ date.saturday? ? "\n" : "\s" }"
+  print day + (date.saturday? ? "\n" : "\s")
 end
