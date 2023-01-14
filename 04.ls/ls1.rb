@@ -22,8 +22,9 @@ def print_files(file_path)
   rows_number = other_than_hidden_files.length.ceildiv(COLUMNS_NUMBER)
   transposed_files = adjust_width(align_array_size(rows_number, other_than_hidden_files).each_slice(rows_number)).transpose
 
-  transposed_files.flatten.each.with_index(1) do |file, index|
-    (index % COLUMNS_NUMBER).zero? ? (puts file) : (print file)
+  transposed_files.each do |files|
+    files[-1] += "\n"
+    files.each { |f| print f }
   end
 end
 
