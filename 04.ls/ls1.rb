@@ -19,8 +19,7 @@ end
 
 def print_files(file_path)
   other_than_hidden_files = Dir.each_child(file_path).reject { |f| f.start_with?('.') }.sort
-
-  rows_number = calc_rows(COLUMNS_NUMBER, other_than_hidden_files)
+  rows_number = other_than_hidden_files.length.ceildiv(COLUMNS_NUMBER)
   transposed_files = adjust_width(align_array_size(rows_number, other_than_hidden_files).each_slice(rows_number)).transpose
 
   transposed_files.flatten.each.with_index(1) do |file, index|
@@ -31,11 +30,6 @@ end
 # 配列の各要素のサイズを揃える
 def align_array_size(rows_number, files)
   (files.length % rows_number).zero? ? files : files + Array.new(rows_number - files.length % rows_number, '')
-end
-
-# 行数の計算
-def calc_rows(num, files)
-  (files.length % num).zero? ? files.length / num : files.length / num + 1
 end
 
 # 列ごとの幅を揃える
