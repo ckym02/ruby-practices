@@ -6,26 +6,51 @@
 COLUMNS_NUMBER = 3
 
 def main
-  argv = ARGV.empty? ? ['.'] : ARGV
+  render_error
 
-  argv.each do |file_path|
-    return puts "ruby ls1.rb: #{file_path}: No such file or directory" unless File.exist?(file_path)
+  print_files(select_file(argv)) unless select_file(argv).empty?
 
-    puts "#{file_path}:" if argv.length != 1 && File.directory?(file_path)
-    File.directory?(file_path) ? print_files(file_path) : (puts file_path)
-    puts "\n" if argv.length != 1
+  select_directory(argv).each do |file_path|
+    other_than_hidden_files = Dir.each_child(file_path).reject { |f| f.start_with?('.') }
+    break if other_than_hidden_files.empty?
+
+    puts "#{file_path}:" if multiple_argv?
+    print_files(other_than_hidden_files)
   end
 end
 
-def print_files(file_path)
-  other_than_hidden_files = Dir.each_child(file_path).reject { |f| f.start_with?('.') }.sort
-  rows_number = other_than_hidden_files.length.ceildiv(COLUMNS_NUMBER)
-  transposed_files = adjust_width(align_array_size(rows_number, other_than_hidden_files).each_slice(rows_number)).transpose
+def select_directory(argv)
+  argv.select { |file_path| File.directory?(file_path) }
+end
 
-  transposed_files.each do |files|
-    files[-1] += "\n"
-    files.each { |f| print f }
+def select_file(argv)
+  argv.select { |file_path| File.file?(file_path) }
+end
+
+def argv
+  ARGV.empty? ? ['.'] : ARGV
+end
+
+def multiple_argv?
+  argv.length > 1
+end
+
+def render_error
+  argv.each do |file_path|
+    puts "ruby ls1.rb: #{file_path}: No such file or directory" unless File.exist?(file_path)
   end
+end
+
+def print_files(files)
+  rows_number = files.length.ceildiv(COLUMNS_NUMBER)
+  transposed_files = adjust_width(align_array_size(rows_number, files.sort).each_slice(rows_number)).transpose
+
+  transposed_files.each do |file_array|
+    file_array[-1] += "\n"
+    file_array.each { |f| print f }
+  end
+
+  puts "\n" if multiple_argv?
 end
 
 # 配列の各要素のサイズを揃える
