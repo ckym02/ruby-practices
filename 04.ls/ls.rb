@@ -2,42 +2,43 @@
 
 # frozen_string_literal: true
 
+require 'optparse'
+
 # 列数
 COLUMNS_NUMBER = 3
 
 def main
+  option = ARGV.getopts('a')
+  @argv = ARGV.empty? ? ['.'] : ARGV
+
   render_error
 
-  print_files(select_file(argv)) unless select_file(argv).empty?
+  print_files(select_file) unless select_file.empty?
 
-  select_directory(argv).each do |file_path|
-    other_than_hidden_files = Dir.each_child(file_path).reject { |f| f.start_with?('.') }
-    break if other_than_hidden_files.empty?
+  select_directory.each do |file_path|
+    files_in_directory = option['a'] ? Dir.each_child(file_path).to_a : Dir.each_child(file_path).reject { |f| f.start_with?('.') }
+    break if files_in_directory.empty?
 
     puts "#{file_path}:" if multiple_argv?
-    print_files(other_than_hidden_files)
+    print_files(files_in_directory)
   end
 end
 
-def select_directory(argv)
-  argv.select { |file_path| File.directory?(file_path) }
+def select_directory
+  @argv.select { |file_path| File.directory?(file_path) }
 end
 
-def select_file(argv)
-  argv.select { |file_path| File.file?(file_path) }
-end
-
-def argv
-  ARGV.empty? ? ['.'] : ARGV
+def select_file
+  @argv.select { |file_path| File.file?(file_path) }
 end
 
 def multiple_argv?
-  argv.length > 1
+  @argv.length > 1
 end
 
 def render_error
-  argv.each do |file_path|
-    puts "ruby ls1.rb: #{file_path}: No such file or directory" unless File.exist?(file_path)
+  @argv.each do |file_path|
+    puts "ruby ls.rb: #{file_path}: No such file or directory" unless File.exist?(file_path)
   end
 end
 
