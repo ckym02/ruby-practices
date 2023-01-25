@@ -8,7 +8,7 @@ require 'optparse'
 COLUMNS_NUMBER = 3
 
 def main
-  option = ARGV.getopts('a')
+  @option = ARGV.getopts('ar')
   @argv = ARGV.empty? ? ['.'] : ARGV
 
   render_error
@@ -16,11 +16,11 @@ def main
   print_files(select_file) unless select_file.empty?
 
   select_directory.each do |file_path|
-    files_in_directory = option['a'] ? Dir.each_child(file_path).to_a : Dir.each_child(file_path).reject { |f| f.start_with?('.') }
+    files_in_directory = Dir.each_child(file_path).to_a.sort
     break if files_in_directory.empty?
 
     puts "#{file_path}:" if multiple_argv?
-    print_files(files_in_directory)
+    print_files(exec_option_r(exec_option_a(files_in_directory)))
   end
 end
 
@@ -30,6 +30,14 @@ end
 
 def select_file
   @argv.select { |file_path| File.file?(file_path) }
+end
+
+def exec_option_a(files_in_directory)
+  @option['a'] ? files_in_directory : files_in_directory.reject { |f| f.start_with?('.') }
+end
+
+def exec_option_r(files_in_directory)
+  @option['r'] ? files_in_directory.reverse : files_in_directory
 end
 
 def multiple_argv?
@@ -44,7 +52,7 @@ end
 
 def print_files(files)
   rows_number = files.length.ceildiv(COLUMNS_NUMBER)
-  transposed_files = adjust_width(align_array_size(rows_number, files.sort).each_slice(rows_number)).transpose
+  transposed_files = adjust_width(align_array_size(rows_number, files).each_slice(rows_number)).transpose
 
   transposed_files.each do |file_array|
     file_array[-1] += "\n"
@@ -62,8 +70,17 @@ end
 # 列ごとの幅を揃える
 def adjust_width(file_array)
   file_array.each_with_object([]) do |array, new_array|
-    max_num = array.map(&:length).max
-    new_array << array.map { |file| "#{file}#{"\s" * (max_num - file.length)}\s\s" }
+    hash_array = []
+    array.each do |file_path|
+      match_ja = file_path.match(/[ぁ-んァ-ヶ一-龠]+/).to_s
+      # 平仮名・漢字・カタカナは半角英数字の2倍の幅にする
+      file_char_count = match_ja.nil? ? file_path.length : match_ja.length * 2 + file_path.delete(match_ja).length
+      hash = { file_path:, file_char_count: }
+      hash_array << hash
+    end
+
+    max_num = hash_array.map { |h| h[:file_char_count] }.max
+    new_array << hash_array.map { |h| "#{h[:file_path]}#{"\s" * (max_num - h[:file_char_count])}\s\s" }
   end
 end
 
