@@ -16,11 +16,11 @@ def main
   print_files(select_file) unless select_file.empty?
 
   select_directory.each do |file_path|
-    files_in_directory = Dir.each_child(file_path).to_a.sort
-    break if files_in_directory.empty?
+    files_for_display = apply_option(file_path)
+    break if files_for_display.empty?
 
     puts "#{file_path}:" if multiple_argv?
-    print_files(exec_option_r(exec_option_a(files_in_directory)))
+    print_files(files_for_display)
   end
 end
 
@@ -32,12 +32,24 @@ def select_file
   @argv.select { |file_path| File.file?(file_path) }
 end
 
-def exec_option_a(files_in_directory)
-  @option['a'] ? files_in_directory : files_in_directory.reject { |f| f.start_with?('.') }
+def exclude_hidden_file(file_path)
+  Dir.each_child(file_path).to_a.reject { |f| f.start_with?('.') }.sort
 end
 
-def exec_option_r(files_in_directory)
-  @option['r'] ? files_in_directory.reverse : files_in_directory
+def include_hidden_file(file_path)
+  Dir.each_child(file_path).to_a.sort
+end
+
+def apply_option(file_path)
+  if @option['a'] && @option['r']
+    include_hidden_file(file_path).reverse
+  elsif @option['a']
+    include_hidden_file(file_path)
+  elsif @option['r']
+    exclude_hidden_file(file_path).reverse
+  else
+    exclude_hidden_file(file_path)
+  end
 end
 
 def multiple_argv?
