@@ -82,17 +82,8 @@ end
 # 列ごとの幅を揃える
 def adjust_width(file_array)
   file_array.each_with_object([]) do |array, new_array|
-    hash_array = []
-    array.each do |file_path|
-      match_ja = file_path.match(/[ぁ-んァ-ヶ一-龠]+/).to_s
-      # 平仮名・漢字・カタカナは半角英数字の2倍の幅にする
-      file_char_count = match_ja.nil? ? file_path.length : match_ja.length * 2 + file_path.delete(match_ja).length
-      hash = { file_path:, file_char_count: }
-      hash_array << hash
-    end
-
-    max_num = hash_array.map { |h| h[:file_char_count] }.max
-    new_array << hash_array.map { |h| "#{h[:file_path]}#{"\s" * (max_num - h[:file_char_count])}\s\s" }
+    max_num = array.map(&:length).max
+    new_array << array.map { |file| "#{file}#{"\s" * (max_num - file.length)}\s\s" }
   end
 end
 
