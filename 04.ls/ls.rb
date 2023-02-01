@@ -16,8 +16,8 @@ def main
   print_files(select_file) unless select_file.empty?
 
   select_directory.each do |file_path|
-    results_considering_hidden_file = @option['a'] ? include_hidden_file(file_path) : exclude_hidden_file(file_path)
-    files_for_display = @option['r'] ? results_considering_hidden_file.reverse : results_considering_hidden_file
+    files = @option['a'] ? include_hidden_file(file_path) : exclude_hidden_file(file_path)
+    files_for_display = @option['r'] ? files.reverse : files
     break if files_for_display.empty?
 
     puts "#{file_path}:" if multiple_argv?
