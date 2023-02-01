@@ -16,7 +16,8 @@ def main
   print_files(select_file) unless select_file.empty?
 
   select_directory.each do |file_path|
-    files_for_display = apply_option(file_path)
+    results_considering_hidden_file = @option['a'] ? include_hidden_file(file_path) : exclude_hidden_file(file_path)
+    files_for_display = @option['r'] ? results_considering_hidden_file.reverse : results_considering_hidden_file
     break if files_for_display.empty?
 
     puts "#{file_path}:" if multiple_argv?
@@ -38,18 +39,6 @@ end
 
 def include_hidden_file(file_path)
   Dir.each_child(file_path).to_a.sort
-end
-
-def apply_option(file_path)
-  if @option['a'] && @option['r']
-    include_hidden_file(file_path).reverse
-  elsif @option['a']
-    include_hidden_file(file_path)
-  elsif @option['r']
-    exclude_hidden_file(file_path).reverse
-  else
-    exclude_hidden_file(file_path)
-  end
 end
 
 def multiple_argv?
