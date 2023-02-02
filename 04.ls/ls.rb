@@ -8,7 +8,7 @@ require 'optparse'
 COLUMNS_NUMBER = 3
 
 def main
-  option = ARGV.getopts('a')
+  @option = ARGV.getopts('ar')
   @argv = ARGV.empty? ? ['.'] : ARGV
 
   render_error
@@ -16,11 +16,12 @@ def main
   print_files(select_file) unless select_file.empty?
 
   select_directory.each do |file_path|
-    files_in_directory = option['a'] ? Dir.each_child(file_path).to_a : Dir.each_child(file_path).reject { |f| f.start_with?('.') }
-    break if files_in_directory.empty?
+    files = @option['a'] ? include_hidden_file(file_path) : exclude_hidden_file(file_path)
+    files_for_display = @option['r'] ? files.reverse : files
+    break if files_for_display.empty?
 
     puts "#{file_path}:" if multiple_argv?
-    print_files(files_in_directory)
+    print_files(files_for_display)
   end
 end
 
@@ -30,6 +31,14 @@ end
 
 def select_file
   @argv.select { |file_path| File.file?(file_path) }
+end
+
+def exclude_hidden_file(file_path)
+  Dir.each_child(file_path).to_a.reject { |f| f.start_with?('.') }.sort
+end
+
+def include_hidden_file(file_path)
+  Dir.each_child(file_path).to_a.sort
 end
 
 def multiple_argv?
@@ -44,7 +53,7 @@ end
 
 def print_files(files)
   rows_number = files.length.ceildiv(COLUMNS_NUMBER)
-  transposed_files = adjust_width(align_array_size(rows_number, files.sort).each_slice(rows_number)).transpose
+  transposed_files = adjust_width(align_array_size(rows_number, files).each_slice(rows_number)).transpose
 
   transposed_files.each do |file_array|
     file_array[-1] += "\n"
