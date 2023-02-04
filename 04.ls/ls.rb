@@ -68,21 +68,15 @@ def render_error
 end
 
 def print_files_details(file_path, files_for_display)
-  block_sum = files_for_display.map { |file| File.stat("#{file_path}/#{file}").blocks }.max
-  nlink_max = files_for_display.map { |file| File.stat("#{file_path}/#{file}").nlink.to_s.length }.max
-  user_max = files_for_display.map { |file| Etc.getpwuid(File.stat("#{file_path}/#{file}").uid).name.to_s.length }.max
-  group_max = files_for_display.map { |file| Etc.getgrgid(File.stat("#{file_path}/#{file}").gid).name.to_s.length }.max
-  size_max = files_for_display.map { |file| File.stat("#{file_path}/#{file}").size.to_s.length }.max
-
-  puts "total #{block_sum}" if @option['l']
+  puts "total #{hogehoge(files_for_display, file_path)[:block_sum]}" if @option['l']
   files_for_display.each do |file|
     stat = File.stat("#{file_path}/#{file}")
     type = stat.ftype == 'file' ? '-' : stat.ftype[0]
     print "#{type}#{enum(stat.mode.to_s(8)[-3])}#{enum(stat.mode.to_s(8)[-2])}#{enum(stat.mode.to_s(8)[-1])}\s\s"
-    print "#{stat.nlink.to_s.rjust(nlink_max)}\s"
-    print "#{Etc.getpwuid(stat.uid).name.rjust(user_max)}\s\s"
-    print "#{Etc.getgrgid(stat.gid).name.rjust(group_max)}\s\s"
-    print "#{stat.size.to_s.rjust(size_max)}\s"
+    print "#{stat.nlink.to_s.rjust(hogehoge(files_for_display, file_path)[:nlink_max])}\s"
+    print "#{Etc.getpwuid(stat.uid).name.rjust(hogehoge(files_for_display, file_path)[:user_max])}\s\s"
+    print "#{Etc.getgrgid(stat.gid).name.rjust(hogehoge(files_for_display, file_path)[:group_max])}\s\s"
+    print "#{stat.size.to_s.rjust(hogehoge(files_for_display, file_path)[:size_max])}\s"
     print "#{stat.mtime.month.to_s.rjust(2)}\s"
     print "#{stat.mtime.day.to_s.rjust(2)}\s"
     print "#{stat.mtime.strftime('%H:%M')}\s"
@@ -90,9 +84,18 @@ def print_files_details(file_path, files_for_display)
   end
 end
 
-# def hogehoge(files_for_display, elem)
-#   files_for_display.map { |file|  File.stat("#{file_path}/#{file}").to_s.length }.max
-# end
+def hogehoge(files_for_display, file_path)
+  max = { block_sum: 0, nlink_max: 0, user_max: 0, group_max: 0, size_max: 0 }
+  files_for_display.map do |file|
+    stat = File.stat("#{file_path}/#{file}")
+    max[:block_sum] += stat.blocks
+    max[:nlink_max] = stat.nlink.to_s.length if max[:nlink_max] < stat.nlink.to_s.length
+    max[:user_max] = Etc.getpwuid(stat.uid).name.to_s.length if max[:user_max] < Etc.getpwuid(stat.uid).name.to_s.length
+    max[:group_max] = Etc.getgrgid(stat.gid).name.to_s.length if max[:group_max] < Etc.getgrgid(stat.gid).name.to_s.length
+    max[:size_max] = stat.size.to_s.length if max[:size_max] < stat.size.to_s.length
+  end
+  max
+end
 
 def print_files(files)
   rows_number = files.length.ceildiv(COLUMNS_NUMBER)
