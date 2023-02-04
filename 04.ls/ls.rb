@@ -3,17 +3,20 @@
 # frozen_string_literal: true
 
 require 'optparse'
+require 'etc'
 
 # 列数
 COLUMNS_NUMBER = 3
 
 def main
-  @option = ARGV.getopts('ar')
+  @option = ARGV.getopts('arl')
   @argv = ARGV.empty? ? ['.'] : ARGV
 
   render_error
 
-  print_files(select_file) unless select_file.empty?
+  unless select_file.empty?
+    @option['l'] ? print_files_details(select_file) : print_files(select_file)
+  end
 
   select_directory.each do |file_path|
     files = @option['a'] ? include_hidden_file(file_path) : exclude_hidden_file(file_path)
@@ -21,8 +24,21 @@ def main
     break if files_for_display.empty?
 
     puts "#{file_path}:" if multiple_argv?
-    print_files(files_for_display)
+    @option['l'] ? print_files_details(file_path, files_for_display) : print_files(files_for_display)
   end
+end
+
+def enum(role)
+  {
+    '0' => '---',
+    '1' => '--x',
+    '2'	=> '-w-',
+    '3' => '-wx',
+    '4' => 'r--',
+    '5' => 'r-x',
+    '6' => 'rw-',
+    '7' => 'rwx'
+  }[role]
 end
 
 def select_directory
@@ -50,6 +66,33 @@ def render_error
     puts "ruby ls.rb: #{file_path}: No such file or directory" unless File.exist?(file_path)
   end
 end
+
+def print_files_details(file_path, files_for_display)
+  block_sum = files_for_display.map { |file| File.stat("#{file_path}/#{file}").blocks }.max
+  nlink_max = files_for_display.map { |file| File.stat("#{file_path}/#{file}").nlink.to_s.length }.max
+  user_max = files_for_display.map { |file| Etc.getpwuid(File.stat("#{file_path}/#{file}").uid).name.to_s.length }.max
+  group_max = files_for_display.map { |file| Etc.getgrgid(File.stat("#{file_path}/#{file}").gid).name.to_s.length }.max
+  size_max = files_for_display.map { |file| File.stat("#{file_path}/#{file}").size.to_s.length }.max
+
+  puts "total #{block_sum}" if @option['l']
+  files_for_display.each do |file|
+    stat = File.stat("#{file_path}/#{file}")
+    type = stat.ftype == 'file' ? '-' : stat.ftype[0]
+    print "#{type}#{enum(stat.mode.to_s(8)[-3])}#{enum(stat.mode.to_s(8)[-2])}#{enum(stat.mode.to_s(8)[-1])}\s\s"
+    print "#{stat.nlink.to_s.rjust(nlink_max)}\s"
+    print "#{Etc.getpwuid(stat.uid).name.rjust(user_max)}\s\s"
+    print "#{Etc.getgrgid(stat.gid).name.rjust(group_max)}\s\s"
+    print "#{stat.size.to_s.rjust(size_max)}\s"
+    print "#{stat.mtime.month.to_s.rjust(2)}\s"
+    print "#{stat.mtime.day.to_s.rjust(2)}\s"
+    print "#{stat.mtime.strftime('%H:%M')}\s"
+    puts file
+  end
+end
+
+# def hogehoge(files_for_display, elem)
+#   files_for_display.map { |file|  File.stat("#{file_path}/#{file}").to_s.length }.max
+# end
 
 def print_files(files)
   rows_number = files.length.ceildiv(COLUMNS_NUMBER)
