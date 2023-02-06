@@ -18,6 +18,24 @@ def main
     @option['l'] ? print_files_details(select_file) : print_files(select_file)
   end
 
+  display_files_in_directory(select_directory)
+end
+
+def render_error
+  @argv.each do |file_path|
+    puts "ruby ls.rb: #{file_path}: No such file or directory" unless File.exist?(file_path)
+  end
+end
+
+def select_file
+  @argv.select { |file_path| File.file?(file_path) }
+end
+
+def select_directory
+  @argv.select { |file_path| File.directory?(file_path) }
+end
+
+def display_files_in_directory(select_directory)
   select_directory.each do |file_path|
     files = @option['a'] ? include_hidden_file(file_path) : exclude_hidden_file(file_path)
     files_for_display = @option['r'] ? files.reverse : files
@@ -26,27 +44,6 @@ def main
     puts "#{file_path}:" if multiple_argv?
     @option['l'] ? print_files_details(file_path, files_for_display) : print_files(files_for_display)
   end
-end
-
-def enum(role)
-  {
-    '0' => '---',
-    '1' => '--x',
-    '2'	=> '-w-',
-    '3' => '-wx',
-    '4' => 'r--',
-    '5' => 'r-x',
-    '6' => 'rw-',
-    '7' => 'rwx'
-  }[role]
-end
-
-def select_directory
-  @argv.select { |file_path| File.directory?(file_path) }
-end
-
-def select_file
-  @argv.select { |file_path| File.file?(file_path) }
 end
 
 def exclude_hidden_file(file_path)
@@ -59,42 +56,6 @@ end
 
 def multiple_argv?
   @argv.length > 1
-end
-
-def render_error
-  @argv.each do |file_path|
-    puts "ruby ls.rb: #{file_path}: No such file or directory" unless File.exist?(file_path)
-  end
-end
-
-def print_files_details(file_path, files_for_display)
-  puts "total #{hogehoge(files_for_display, file_path)[:block_sum]}" if @option['l']
-  files_for_display.each do |file|
-    stat = File.stat("#{file_path}/#{file}")
-    type = stat.ftype == 'file' ? '-' : stat.ftype[0]
-    print "#{type}#{enum(stat.mode.to_s(8)[-3])}#{enum(stat.mode.to_s(8)[-2])}#{enum(stat.mode.to_s(8)[-1])}\s\s"
-    print "#{stat.nlink.to_s.rjust(hogehoge(files_for_display, file_path)[:nlink_max])}\s"
-    print "#{Etc.getpwuid(stat.uid).name.rjust(hogehoge(files_for_display, file_path)[:user_max])}\s\s"
-    print "#{Etc.getgrgid(stat.gid).name.rjust(hogehoge(files_for_display, file_path)[:group_max])}\s\s"
-    print "#{stat.size.to_s.rjust(hogehoge(files_for_display, file_path)[:size_max])}\s"
-    print "#{stat.mtime.month.to_s.rjust(2)}\s"
-    print "#{stat.mtime.day.to_s.rjust(2)}\s"
-    print "#{stat.mtime.strftime('%H:%M')}\s"
-    puts file
-  end
-end
-
-def hogehoge(files_for_display, file_path)
-  max = { block_sum: 0, nlink_max: 0, user_max: 0, group_max: 0, size_max: 0 }
-  files_for_display.map do |file|
-    stat = File.stat("#{file_path}/#{file}")
-    max[:block_sum] += stat.blocks
-    max[:nlink_max] = stat.nlink.to_s.length if max[:nlink_max] < stat.nlink.to_s.length
-    max[:user_max] = Etc.getpwuid(stat.uid).name.to_s.length if max[:user_max] < Etc.getpwuid(stat.uid).name.to_s.length
-    max[:group_max] = Etc.getgrgid(stat.gid).name.to_s.length if max[:group_max] < Etc.getgrgid(stat.gid).name.to_s.length
-    max[:size_max] = stat.size.to_s.length if max[:size_max] < stat.size.to_s.length
-  end
-  max
 end
 
 def print_files(files)
@@ -120,6 +81,49 @@ def adjust_width(file_array)
     max_num = array.map(&:length).max
     new_array << array.map { |file| "#{file}#{"\s" * (max_num - file.length)}\s\s" }
   end
+end
+
+def print_files_details(file_path, files_for_display)
+  blocks_sum = files_for_display.map { |f| File.stat("#{file_path}/#{f}").blocks }.sum
+  puts "total #{blocks_sum}"
+  files_for_display.each do |file|
+    stat = File.stat("#{file_path}/#{file}")
+    type = stat.ftype == 'file' ? '-' : stat.ftype[0]
+    print "#{type}#{enum(stat.mode.to_s(8)[-3])}#{enum(stat.mode.to_s(8)[-2])}#{enum(stat.mode.to_s(8)[-1])}\s\s"
+    print "#{stat.nlink.to_s.rjust(calc_max_length(files_for_display, file_path)[:nlink])}\s"
+    print "#{Etc.getpwuid(stat.uid).name.rjust(calc_max_length(files_for_display, file_path)[:user])}\s\s"
+    print "#{Etc.getgrgid(stat.gid).name.rjust(calc_max_length(files_for_display, file_path)[:group])}\s\s"
+    print "#{stat.size.to_s.rjust(calc_max_length(files_for_display, file_path)[:size])}\s"
+    print "#{stat.mtime.month.to_s.rjust(2)}\s"
+    print "#{stat.mtime.day.to_s.rjust(2)}\s"
+    print "#{stat.mtime.strftime('%H:%M')}\s"
+    puts file
+  end
+end
+
+def calc_max_length(files_for_display, file_path)
+  max = { nlink: 0, user: 0, group: 0, size: 0 }
+  files_for_display.map do |file|
+    stat = File.stat("#{file_path}/#{file}")
+    max[:nlink] = stat.nlink.to_s.length if max[:nlink] < stat.nlink.to_s.length
+    max[:user] = Etc.getpwuid(stat.uid).name.to_s.length if max[:user] < Etc.getpwuid(stat.uid).name.to_s.length
+    max[:group] = Etc.getgrgid(stat.gid).name.to_s.length if max[:group] < Etc.getgrgid(stat.gid).name.to_s.length
+    max[:size] = stat.size.to_s.length if max[:size] < stat.size.to_s.length
+  end
+  max
+end
+
+def enum(role)
+  {
+    '0' => '---',
+    '1' => '--x',
+    '2'	=> '-w-',
+    '3' => '-wx',
+    '4' => 'r--',
+    '5' => 'r-x',
+    '6' => 'rw-',
+    '7' => 'rwx'
+  }[role]
 end
 
 main
