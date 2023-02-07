@@ -15,10 +15,10 @@ def main
   render_error
 
   unless select_file.empty?
-    @option['l'] ? print_files_details(select_file) : print_files(select_file)
+    @option['l'] ? print_files_details('.', select_file) : print_files(select_file)
   end
 
-  display_files_in_directory(select_directory)
+  display_files_in_directory
 end
 
 def render_error
@@ -35,14 +35,20 @@ def select_directory
   @argv.select { |file_path| File.directory?(file_path) }
 end
 
-def display_files_in_directory(select_directory)
+def display_files_in_directory
   select_directory.each do |file_path|
     files = @option['a'] ? include_hidden_file(file_path) : exclude_hidden_file(file_path)
     files_for_display = @option['r'] ? files.reverse : files
     break if files_for_display.empty?
 
     puts "#{file_path}:" if multiple_argv?
-    @option['l'] ? print_files_details(file_path, files_for_display) : print_files(files_for_display)
+
+    if @option['l']
+      puts "total #{blocks_sum(file_path, files_for_display)}"
+      print_files_details(file_path, files_for_display)
+    else
+      print_files(files_for_display)
+    end
   end
 end
 
@@ -79,21 +85,19 @@ end
 def adjust_width(file_array)
   file_array.each_with_object([]) do |array, new_array|
     max_num = array.map(&:length).max
-    new_array << array.map { |file| "#{file}#{"\s" * (max_num - file.length)}\s\s" }
+    new_array << array.map { |file| "#{file.ljust(max_num)}\s\s" }
   end
 end
 
 def print_files_details(file_path, files_for_display)
-  blocks_sum = files_for_display.map { |f| File.stat("#{file_path}/#{f}").blocks }.sum
-  puts "total #{blocks_sum}"
   files_for_display.each do |file|
     stat = File.stat("#{file_path}/#{file}")
     type = stat.ftype == 'file' ? '-' : stat.ftype[0]
     print "#{type}#{enum(stat.mode.to_s(8)[-3])}#{enum(stat.mode.to_s(8)[-2])}#{enum(stat.mode.to_s(8)[-1])}\s\s"
-    print "#{stat.nlink.to_s.rjust(calc_max_length(files_for_display, file_path)[:nlink])}\s"
-    print "#{Etc.getpwuid(stat.uid).name.rjust(calc_max_length(files_for_display, file_path)[:user])}\s\s"
-    print "#{Etc.getgrgid(stat.gid).name.rjust(calc_max_length(files_for_display, file_path)[:group])}\s\s"
-    print "#{stat.size.to_s.rjust(calc_max_length(files_for_display, file_path)[:size])}\s"
+    print "#{stat.nlink.to_s.rjust(calc_max_length(file_path, files_for_display)[:nlink])}\s"
+    print "#{Etc.getpwuid(stat.uid).name.rjust(calc_max_length(file_path, files_for_display)[:user])}\s\s"
+    print "#{Etc.getgrgid(stat.gid).name.rjust(calc_max_length(file_path, files_for_display)[:group])}\s\s"
+    print "#{stat.size.to_s.rjust(calc_max_length(file_path, files_for_display)[:size])}\s"
     print "#{stat.mtime.month.to_s.rjust(2)}\s"
     print "#{stat.mtime.day.to_s.rjust(2)}\s"
     print "#{stat.mtime.strftime('%H:%M')}\s"
@@ -101,7 +105,7 @@ def print_files_details(file_path, files_for_display)
   end
 end
 
-def calc_max_length(files_for_display, file_path)
+def calc_max_length(file_path, files_for_display)
   max = { nlink: 0, user: 0, group: 0, size: 0 }
   files_for_display.map do |file|
     stat = File.stat("#{file_path}/#{file}")
@@ -111,6 +115,10 @@ def calc_max_length(files_for_display, file_path)
     max[:size] = stat.size.to_s.length if max[:size] < stat.size.to_s.length
   end
   max
+end
+
+def blocks_sum(file_path, files_for_display)
+  files_for_display.map { |f| File.stat("#{file_path}/#{f}").blocks }.sum
 end
 
 def enum(role)
