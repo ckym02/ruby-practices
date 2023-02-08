@@ -104,6 +104,7 @@ def print_files_details(directory_path, files_for_display)
     print "#{stat.mtime.strftime('%H:%M')}\s"
     puts file
   end
+  puts "\n" if multiple_argv?
 end
 
 def calc_max_length(directory_path, files_for_display)
