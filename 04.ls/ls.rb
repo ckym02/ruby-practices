@@ -36,28 +36,28 @@ def select_directory
 end
 
 def display_files_in_directory
-  select_directory.each do |file_path|
-    files = @option['a'] ? include_hidden_file(file_path) : exclude_hidden_file(file_path)
+  select_directory.each do |directory_path|
+    files = @option['a'] ? include_hidden_file(directory_path) : exclude_hidden_file(directory_path)
     files_for_display = @option['r'] ? files.reverse : files
     break if files_for_display.empty?
 
-    puts "#{file_path}:" if multiple_argv?
+    puts "#{directory_path}:" if multiple_argv?
 
     if @option['l']
-      puts "total #{blocks_sum(file_path, files_for_display)}"
-      print_files_details(file_path, files_for_display)
+      puts "total #{blocks_sum(directory_path, files_for_display)}"
+      print_files_details(directory_path, files_for_display)
     else
       print_files(files_for_display)
     end
   end
 end
 
-def exclude_hidden_file(file_path)
-  Dir.each_child(file_path).to_a.reject { |f| f.start_with?('.') }.sort
+def exclude_hidden_file(directory_path)
+  Dir.each_child(directory_path).to_a.reject { |f| f.start_with?('.') }.sort
 end
 
-def include_hidden_file(file_path)
-  Dir.each_child(file_path).to_a.sort
+def include_hidden_file(directory_path)
+  Dir.each_child(directory_path).to_a.sort
 end
 
 def multiple_argv?
@@ -89,15 +89,16 @@ def adjust_width(file_array)
   end
 end
 
-def print_files_details(file_path, files_for_display)
+def print_files_details(directory_path, files_for_display)
   files_for_display.each do |file|
-    stat = File.stat("#{file_path}/#{file}")
+    stat = File.stat("#{directory_path}/#{file}")
+    max_length = calc_max_length(directory_path, files_for_display)
     type = stat.ftype == 'file' ? '-' : stat.ftype[0]
-    print "#{type}#{enum(stat.mode.to_s(8)[-3])}#{enum(stat.mode.to_s(8)[-2])}#{enum(stat.mode.to_s(8)[-1])}\s\s"
-    print "#{stat.nlink.to_s.rjust(calc_max_length(file_path, files_for_display)[:nlink])}\s"
-    print "#{Etc.getpwuid(stat.uid).name.rjust(calc_max_length(file_path, files_for_display)[:user])}\s\s"
-    print "#{Etc.getgrgid(stat.gid).name.rjust(calc_max_length(file_path, files_for_display)[:group])}\s\s"
-    print "#{stat.size.to_s.rjust(calc_max_length(file_path, files_for_display)[:size])}\s"
+    print "#{type}#{PERMISSION[stat.mode.to_s(8)[-3]]}#{PERMISSION[stat.mode.to_s(8)[-2]]}#{PERMISSION[stat.mode.to_s(8)[-1]]}\s\s"
+    print "#{stat.nlink.to_s.rjust(max_length[:nlink])}\s"
+    print "#{Etc.getpwuid(stat.uid).name.rjust(max_length[:user])}\s\s"
+    print "#{Etc.getgrgid(stat.gid).name.rjust(max_length[:group])}\s\s"
+    print "#{stat.size.to_s.rjust(max_length[:size])}\s"
     print "#{stat.mtime.month.to_s.rjust(2)}\s"
     print "#{stat.mtime.day.to_s.rjust(2)}\s"
     print "#{stat.mtime.strftime('%H:%M')}\s"
@@ -105,10 +106,10 @@ def print_files_details(file_path, files_for_display)
   end
 end
 
-def calc_max_length(file_path, files_for_display)
+def calc_max_length(directory_path, files_for_display)
   max = { nlink: 0, user: 0, group: 0, size: 0 }
   files_for_display.map do |file|
-    stat = File.stat("#{file_path}/#{file}")
+    stat = File.stat("#{directory_path}/#{file}")
     max[:nlink] = stat.nlink.to_s.length if max[:nlink] < stat.nlink.to_s.length
     max[:user] = Etc.getpwuid(stat.uid).name.to_s.length if max[:user] < Etc.getpwuid(stat.uid).name.to_s.length
     max[:group] = Etc.getgrgid(stat.gid).name.to_s.length if max[:group] < Etc.getgrgid(stat.gid).name.to_s.length
@@ -117,21 +118,19 @@ def calc_max_length(file_path, files_for_display)
   max
 end
 
-def blocks_sum(file_path, files_for_display)
-  files_for_display.map { |f| File.stat("#{file_path}/#{f}").blocks }.sum
+def blocks_sum(directory_path, files_for_display)
+  files_for_display.map { |f| File.stat("#{directory_path}/#{f}").blocks }.sum
 end
 
-def enum(role)
-  {
-    '0' => '---',
-    '1' => '--x',
-    '2'	=> '-w-',
-    '3' => '-wx',
-    '4' => 'r--',
-    '5' => 'r-x',
-    '6' => 'rw-',
-    '7' => 'rwx'
-  }[role]
-end
+PERMISSION = {
+  '0' => '---',
+  '1' => '--x',
+  '2'	=> '-w-',
+  '3' => '-wx',
+  '4' => 'r--',
+  '5' => 'r-x',
+  '6' => 'rw-',
+  '7' => 'rwx'
+}.freeze
 
 main
