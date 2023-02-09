@@ -90,9 +90,9 @@ def adjust_width(file_array)
 end
 
 def print_files_details(directory_path, files_for_display)
+  max_length = calc_max_length(directory_path, files_for_display)
   files_for_display.each do |file|
     stat = File.stat("#{directory_path}/#{file}")
-    max_length = calc_max_length(directory_path, files_for_display)
     type = stat.ftype == 'file' ? '-' : stat.ftype[0]
     print "#{type}#{PERMISSION[stat.mode.to_s(8)[-3]]}#{PERMISSION[stat.mode.to_s(8)[-2]]}#{PERMISSION[stat.mode.to_s(8)[-1]]}\s\s"
     print "#{stat.nlink.to_s.rjust(max_length[:nlink])}\s"
