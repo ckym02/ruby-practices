@@ -6,8 +6,17 @@ require 'optparse'
 
 def main
   @option = ARGV.getopts('lwc')
-  @argv = ARGV.empty? ? ['.'] : ARGV
+  @argv = ARGV
 
+  if !@argv.empty?
+    print_all_files_word_count
+  else
+    @stdin = $stdin.read
+    print_stdin_word_count
+  end
+end
+
+def print_all_files_word_count
   render_error
 
   read_file_count_sum = 0
@@ -25,6 +34,12 @@ def main
   end
 
   print_total_word_count(read_file_count_sum, read_file_word_sum, file_size_sum) if multiple_argv?
+end
+
+def print_stdin_word_count
+  print @stdin.count("\n").to_s.rjust(8) if @option['l'] || no_option?
+  print @stdin.split(/\s+/).count.to_s.rjust(8) if @option['w'] || no_option?
+  print @stdin.size.to_s.rjust(8) if @option['c'] || no_option?
 end
 
 def render_error
@@ -75,13 +90,5 @@ def calc_max_length(select_file)
   end
   max
 end
-
-# TODO:
-# ディレクトリを引数にとる
-# ❯ wc ~/Desktop/ruby-practices/05.wc
-# wc: /Users/koyama/Desktop/ruby-practices/05.wc: read: Is a directory
-
-# ファイルだと
-# wc: /Users/koyama/Desktop/ruby-practices/05.wc/wrb: open: No such file or directory
 
 main
