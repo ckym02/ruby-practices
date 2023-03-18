@@ -9,14 +9,14 @@ def main
   argv = ARGV
 
   if !argv.empty?
-    print_all_files_word_count(option, argv)
+    print_files_word_count(option, argv)
   else
     stdin = $stdin.read
     print_word_count(option, stdin.count("\n"), stdin.split(/\s+/).count, stdin.size)
   end
 end
 
-def print_all_files_word_count(option, argv)
+def print_files_word_count(option, argv)
   render_error(argv)
 
   read_file_count_sum = 0
