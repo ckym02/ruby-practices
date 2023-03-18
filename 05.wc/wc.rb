@@ -48,9 +48,14 @@ def render_error(argv)
 end
 
 def print_word_count(option, read_file_count, read_file_word, file_size)
-  print read_file_count.to_s.rjust(8) if option['l'] || no_option?(option)
-  print read_file_word.to_s.rjust(8) if option['w'] || no_option?(option)
-  print file_size.to_s.rjust(8) if option['c'] || no_option?(option)
+  if no_option?(option)
+    print read_file_count.to_s.rjust(8)
+    print read_file_word.to_s.rjust(8)
+    print file_size.to_s.rjust(8)
+  end
+  print read_file_count.to_s.rjust(8) if option['l']
+  print read_file_word.to_s.rjust(8) if option['w']
+  print file_size.to_s.rjust(8) if option['c']
 end
 
 def select_file(argv)
@@ -66,7 +71,7 @@ def multiple_argv?(argv)
 end
 
 def no_option?(option)
-  option.all? { |_k, v| v == false }
+  option.all? { |_, v| v == false }
 end
 
 main
