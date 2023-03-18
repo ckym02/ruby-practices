@@ -69,16 +69,4 @@ def no_option?(option)
   option.all? { |_k, v| v == false }
 end
 
-def calc_max_length(select_file)
-  max = { newlines: 0, words: 0, bytes: 0 }
-  select_file.map do |file_path|
-    read_file = File.read(file_path)
-    file = File.new(file_path)
-    max[:newlines] = read_file.count("\n").length if max[:newlines] < read_file.count("\n").length
-    max[:words] = read_file.split(/\s+/).count.length if max[:words] < read_file.split(/\s+/).count.length
-    max[:bytes] = file.size.length if max[:bytes] < file.size.length
-  end
-  max
-end
-
 main
