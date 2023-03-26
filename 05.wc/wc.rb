@@ -12,7 +12,7 @@ def main
     print_files_word_count(option, argv)
   else
     stdin = $stdin.read
-    print_word_count(option, stdin.count("\n"), stdin.split(/\s+/).count, stdin.size)
+    print_count(option, stdin.count("\n"), stdin.split(/\s+/).count, stdin.size)
   end
 end
 
@@ -25,18 +25,17 @@ def print_files_word_count(option, argv)
 
   select_file(argv).each do |file_path|
     read_file = File.read(file_path)
-    file = File.new(file_path)
     read_file_count_sum += read_file.count("\n").to_i
     read_file_word_sum += read_file.split(/\s+/).count.to_i
-    file_size_sum += file.size.to_i
+    file_size_sum += read_file.size.to_i
 
-    print_word_count(option, read_file.count("\n"), read_file.split(/\s+/).count, file.size)
+    print_count(option, read_file.count("\n"), read_file.split(/\s+/).count, read_file.size)
     puts "\s#{file_path}"
   end
 
-  return unless multiple_argv?(argv)
+  return unless argv.length > 1
 
-  print_word_count(option, read_file_count_sum, read_file_word_sum, file_size_sum)
+  print_count(option, read_file_count_sum, read_file_word_sum, file_size_sum)
   puts "\stotal"
 end
 
@@ -47,27 +46,36 @@ def render_error(argv)
   end
 end
 
-def print_word_count(option, read_file_count, read_file_word, file_size)
+def print_count(option, line_count, word_count, string_count)
   if no_option?(option)
-    print read_file_count.to_s.rjust(8)
-    print read_file_word.to_s.rjust(8)
-    print file_size.to_s.rjust(8)
+    print_all(line_count, word_count, string_count)
+  else
+    print_line_count(line_count) if option['l']
+    print_word_count(word_count) if option['w']
+    print_string_count(string_count) if option['c']
   end
-  print read_file_count.to_s.rjust(8) if option['l']
-  print read_file_word.to_s.rjust(8) if option['w']
-  print file_size.to_s.rjust(8) if option['c']
+end
+
+def print_all(line_count, word_count, string_count)
+  print_line_count(line_count)
+  print_word_count(word_count)
+  print_string_count(string_count)
+end
+
+def print_line_count(line_count)
+  print line_count.to_s.rjust(8)
+end
+
+def print_word_count(word_count)
+  print word_count.to_s.rjust(8)
+end
+
+def print_string_count(string_count)
+  print string_count.to_s.rjust(8)
 end
 
 def select_file(argv)
   argv.select { |file_path| File.file?(file_path) }
-end
-
-def directory?(file_path)
-  File.directory?(file_path)
-end
-
-def multiple_argv?(argv)
-  argv.length > 1
 end
 
 def no_option?(option)
