@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Shot
+  private attr_accessor :mark
+
   def initialize(mark)
     @mark = mark
   end
@@ -8,12 +10,12 @@ class Shot
   def score
     return 10 if strike?
 
-    @mark.to_i
+    mark.to_i
   end
 
   private
 
   def strike?
-    @mark == 'X'
+    mark == 'X'
   end
 end
