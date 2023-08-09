@@ -4,8 +4,6 @@ require './frame'
 require './shot'
 
 class Game
-  private attr_accessor :all_scores
-
   def initialize(all_scores)
     @all_scores = all_scores
   end
@@ -31,6 +29,8 @@ class Game
   end
 
   private
+
+  attr_accessor :all_scores
 
   def shot_score(shot_number)
     Shot.new(all_scores[shot_number - 1]).score

@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Shot
-  private attr_accessor :mark
-
   def initialize(mark)
     @mark = mark
   end
@@ -14,6 +12,8 @@ class Shot
   end
 
   private
+
+  attr_accessor :mark
 
   def strike?
     mark == 'X'
