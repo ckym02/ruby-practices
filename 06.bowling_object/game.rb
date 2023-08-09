@@ -11,14 +11,14 @@ class Game
   def score
     total_score = 0
     shot_number = 1
-    separate_by_frames.each do |scores|
+    separate_by_frames.each.with_index(1) do |scores, frame_number|
       frame = Frame.new(first_mark: scores[0], second_mark: scores[1], third_mark: scores[2])
 
-      if frame.strike?
-        total_score += frame.score + shot_score(shot_number + 1) + shot_score(shot_number + 2)
+      if frame.strike? && frame_number != 10
+        total_score += frame.score + shot_score(shot_number) + shot_score(shot_number + 1)
         shot_number += 1
-      elsif frame.spare?
-        total_score += frame.score + shot_score(shot_number + 2)
+      elsif frame.spare? && frame_number != 10
+        total_score += frame.score + shot_score(shot_number + 1)
         shot_number += 2
       else
         total_score += frame.score
@@ -32,8 +32,8 @@ class Game
 
   attr_accessor :all_scores
 
-  def shot_score(shot_number)
-    Shot.new(all_scores[shot_number - 1]).score
+  def shot_score(number)
+    Shot.new(all_scores[number]).score
   end
 
   # フレームごとのスコアに分ける
