@@ -5,8 +5,7 @@
 require_relative 'game'
 
 def main
-  argv = ARGV.first.split(',')
-  game = Game.new(argv)
+  game = Game.new(ARGV.first.split(','))
   puts game.score
 end
 
