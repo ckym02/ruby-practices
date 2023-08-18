@@ -8,14 +8,12 @@ class Shot
   def score
     return 10 if strike?
 
-    mark.to_i
+    @mark.to_i
   end
 
   private
 
-  attr_accessor :mark
-
   def strike?
-    mark == 'X'
+    @mark == 'X'
   end
 end

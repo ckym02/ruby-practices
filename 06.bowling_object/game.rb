@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require './frame'
-require './shot'
+require_relative 'frame'
+require_relative 'shot'
 
 class Game
   def initialize(all_scores)
@@ -30,16 +30,14 @@ class Game
 
   private
 
-  attr_accessor :all_scores
-
   def shot_score(number)
-    Shot.new(all_scores[number]).score
+    Shot.new(@all_scores[number]).score
   end
 
   # フレームごとのスコアに分ける
   # [['6', '3'], ['9', '0'], ['0', '3'], ['8', '2'], ['7', '3'], ['X'], ['9', '1'], ['8', '0'], ['X'], ['X', 'X', 'X']]
   def separate_by_frames
-    slice_score = all_scores.slice_when { |score| score == 'X' }.flat_map { |n| n.each_slice(2).to_a }
+    slice_score = @all_scores.slice_when { |score| score == 'X' }.flat_map { |n| n.each_slice(2).to_a }
     slice_score[0..8].push slice_score[9..].flatten
   end
 end

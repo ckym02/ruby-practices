@@ -2,7 +2,7 @@
 
 # frozen_string_literal: true
 
-require './game'
+require_relative 'game'
 
 def main
   argv = ARGV.first.split(',')
