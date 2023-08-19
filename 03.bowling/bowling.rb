@@ -8,15 +8,15 @@ def main
 
   throw_number = 0
   point = 0
-  separate_by_frames(each_score).each do |frame|
-    if strike?(frame)
-      point += frame.first + each_score[throw_number + 1] + each_score[throw_number + 2]
+  separate_by_frames(each_score).each do |flame|
+    if strike?(flame)
+      point += flame.first + each_score[throw_number + 1] + each_score[throw_number + 2]
       throw_number += 1
-    elsif spare?(frame)
-      point += frame.sum + each_score[throw_number + 2]
+    elsif spare?(flame)
+      point += flame.sum + each_score[throw_number + 2]
       throw_number += 2
     else
-      point += frame.sum
+      point += flame.sum
       throw_number += 2
     end
   end
@@ -30,12 +30,12 @@ def separate_by_frames(each_score)
   slice_score[0..8].push slice_score[9..].flatten
 end
 
-def strike?(frame)
-  frame.first == 10
+def strike?(flame)
+  flame.first == 10
 end
 
-def spare?(frame)
-  frame.sum == 10
+def spare?(flame)
+  flame.sum == 10
 end
 
 main
