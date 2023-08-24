@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Shot
-  def initialize(mark)
+  def initialize(mark = '')
     @mark = mark
   end
 
@@ -10,8 +10,6 @@ class Shot
 
     @mark.to_i
   end
-
-  private
 
   def strike?
     @mark == 'X'

@@ -5,20 +5,18 @@ require_relative 'shot'
 
 class Game
   def initialize(marks)
-    @scores = marks.map { |mark| Shot.new(mark).score }
+    @shots = marks.map { |mark| Shot.new(mark) }
   end
 
   def score
     total_score = 0
     shot_number = 1
-    separate_by_frames.each.with_index(1) do |frame, frame_number|
-      frame = Frame.new(first_score: frame[0], second_score: frame[1], third_score: frame[2])
-
+    generate_frames.each.with_index(1) do |frame, frame_number|
       if frame.strike? && frame_number != 10
-        total_score += frame.score + @scores[shot_number] + @scores[shot_number + 1]
+        total_score += frame.score + @shots[shot_number].score + @shots[shot_number + 1].score
         shot_number += 1
       elsif frame.spare? && frame_number != 10
-        total_score += frame.score + @scores[shot_number + 1]
+        total_score += frame.score + @shots[shot_number + 1].score
         shot_number += 2
       else
         total_score += frame.score
@@ -30,10 +28,16 @@ class Game
 
   private
 
-  # フレームごとのスコアに分ける
-  # [[6, 3], [9, 0], [0, 3], [8, 2], [7, 3], [10], [9, 1], [8, 0], [10], [6, 4, 5]]
-  def separate_by_frames
-    slice_score = @scores.slice_when { |score| score == 10 }.flat_map { |n| n.each_slice(2).to_a }
+  # フレームごとにshotを分割する
+  def separate_shots
+    slice_score = @shots.slice_when { |shot, _| shot.strike? }.flat_map { |n| n.each_slice(2).to_a }
     slice_score[0..8].push slice_score[9..].flatten
+  end
+
+  # frameオブジェクトの配列を作成する
+  def generate_frames
+    separate_shots.map do |shots|
+      Frame.new(first_shot: shots[0], second_shot: shots[1] || Shot.new, third_shot: shots[2] || Shot.new)
+    end
   end
 end
