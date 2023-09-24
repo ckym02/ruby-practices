@@ -9,7 +9,6 @@ class Directory
     @directory_path = directory_path
     @include_hidden_file = include_hidden_file
     @reverse_order = reverse_order
-    @files = files
   end
 
   def exclude_hidden_file
@@ -26,12 +25,12 @@ class Directory
   end
 
   def blocks_sum
-    @files.map { |f| File.stat("#{@directory_path}/#{f}").blocks }.sum
+    files.map { |f| File.stat("#{@directory_path}/#{f}").blocks }.sum
   end
 
   def calc_max_length_of_file_stat
     max = { nlink: 0, user: 0, group: 0, size: 0 }
-    @files.map do |file_name|
+    files.map do |file_name|
       file = File.new(file_path: "#{@directory_path}/#{file_name}")
       max[:nlink] = file.link_count.length if max[:nlink] < file.link_count.length
       max[:user] = file.owner_name.length if max[:user] < file.owner_name.length
