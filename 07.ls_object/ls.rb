@@ -4,7 +4,7 @@
 
 require 'optparse'
 require 'etc'
-require_relative 'file'
+require_relative 'file_information'
 require_relative 'directory'
 
 # 列数

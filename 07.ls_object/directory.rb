@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'file'
+require_relative 'file_information'
 
 class Directory
   attr_reader :directory_path
