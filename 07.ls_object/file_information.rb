@@ -53,8 +53,18 @@ class FileInformation
   end
 
   def detail
-    "#{type}#{permission}\s\s" \
+    "#{type}#{permission}#{display_extended_attribute}\s" \
       "#{link_count.rjust(@nlink_length)}\s#{owner_name.rjust(@user_length)}\s\s#{group_name.rjust(@group_length)}\s\s#{byte_size.rjust(@size_length)}\s" \
       "#{time_stamp}\s"
+  end
+
+  def display_extended_attribute
+    return "\s" if extended_attributes.empty?
+
+    '@'
+  end
+
+  def extended_attributes
+    `xattr "#{@file_path}"`
   end
 end
