@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class File
+class FileInformation
   PERMISSION = {
     '0' => '---',
     '1' => '--x',
@@ -52,7 +52,7 @@ class File
     "#{stat.mtime.month.to_s.rjust(2)}\s#{stat.mtime.day.to_s.rjust(2)}\s#{stat.mtime.strftime('%H:%M')}"
   end
 
-  def file_detail
+  def detail
     "#{type}#{permission}\s\s" \
       "#{link_count.rjust(@nlink_length)}\s#{owner_name.rjust(@user_length)}\s\s#{group_name.rjust(@group_length)}\s\s#{byte_size.rjust(@size_length)}\s" \
       "#{time_stamp}\s"

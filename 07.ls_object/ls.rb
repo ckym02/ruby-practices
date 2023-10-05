@@ -87,8 +87,8 @@ end
 def print_files_details(directory, files_for_display)
   max_length = directory.calc_max_length_of_file_stat
   files_for_display.each do |file_name|
-    file = File.new(file_path: "#{directory.directory_path}/#{file_name}", stat_max_length: max_length)
-    print file.file_detail
+    file = FileInformation.new(file_path: "#{directory.directory_path}/#{file_name}", stat_max_length: max_length)
+    print file.detail
     puts file_name
   end
   puts "\n" if multiple_argv?
