@@ -12,11 +12,11 @@ class Directory
   end
 
   def exclude_hidden_file
-    Dir.each_child(@directory_path).to_a.reject { |f| f.start_with?('.') }.sort
+    Dir.foreach(@directory_path).to_a.reject { |f| f.start_with?('.') }.sort
   end
 
   def include_hidden_file
-    Dir.each_child(@directory_path).to_a.sort
+    Dir.foreach(@directory_path).to_a.sort
   end
 
   def files
