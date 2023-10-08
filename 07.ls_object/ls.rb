@@ -4,8 +4,8 @@
 
 require 'optparse'
 require 'etc'
-require_relative 'file_information'
-require_relative 'directory'
+require_relative 'ls_file'
+require_relative 'ls_directory'
 
 # 列数
 COLUMNS_NUMBER = 3
@@ -17,7 +17,7 @@ def main
   render_error
 
   unless select_file.empty?
-    directory = Directory.new(directory_path: '.', include_hidden_file: @option['a'], reverse_order: @option['r'])
+    directory = LsDirectory.new(directory_path: '.', include_hidden_file: @option['a'], reverse_order: @option['r'])
     @option['l'] ? print_files_details(directory, select_file) : print_files(select_file)
   end
 
@@ -44,7 +44,7 @@ end
 
 def display_files_in_directory
   select_directory.each do |directory_path|
-    directory = Directory.new(directory_path:, include_hidden_file: @option['a'], reverse_order: @option['r'])
+    directory = LsDirectory.new(directory_path:, include_hidden_file: @option['a'], reverse_order: @option['r'])
     files_for_display = directory.files
     break if files_for_display.empty?
 
@@ -87,7 +87,7 @@ end
 def print_files_details(directory, files_for_display)
   max_length = directory.calc_max_length_of_file_stat
   files_for_display.each do |file_name|
-    file = FileInformation.new(file_path: "#{directory.directory_path}/#{file_name}", stat_max_length: max_length)
+    file = LsFile.new(file_path: "#{directory.directory_path}/#{file_name}", stat_max_length: max_length)
     print file.detail
     puts file_name
   end

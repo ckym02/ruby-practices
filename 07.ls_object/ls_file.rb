@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FileInformation
+class LsFile
   PERMISSION = {
     '0' => '---',
     '1' => '--x',

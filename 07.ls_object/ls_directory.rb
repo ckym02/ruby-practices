@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative 'file_information'
+require_relative 'ls_file'
 
-class Directory
+class LsDirectory
   attr_reader :directory_path
 
   def initialize(directory_path:, include_hidden_file: true, reverse_order: false)
@@ -31,7 +31,7 @@ class Directory
   def calc_max_length_of_file_stat
     max = { nlink: 0, user: 0, group: 0, size: 0 }
     files.map do |file_name|
-      file = FileInformation.new(file_path: "#{@directory_path}/#{file_name}")
+      file = LsFile.new(file_path: "#{@directory_path}/#{file_name}")
       max[:nlink] = file.link_count.length if max[:nlink] < file.link_count.length
       max[:user] = file.owner_name.length if max[:user] < file.owner_name.length
       max[:group] = file.group_name.length if max[:group] < file.group_name.length
