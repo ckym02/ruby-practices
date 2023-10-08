@@ -12,26 +12,9 @@ COLUMNS_NUMBER = 3
 
 def main
   @option = ARGV.getopts('arl')
-  @argv = ARGV.empty? ? ['.'] : ARGV
-
-  render_error
-
-  unless select_file.empty?
-    directory = LsDirectory.new(directory_path: '.', include_hidden_file: @option['a'], reverse_order: @option['r'])
-    @option['l'] ? print_files_details(directory, select_file) : print_files(select_file)
-  end
+  @argv = ['.']
 
   display_files_in_directory
-end
-
-def multiple_argv?
-  @argv.length > 1
-end
-
-def render_error
-  @argv.each do |file_path|
-    puts "ruby ls.rb: #{file_path}: No such file or directory" unless File.exist?(file_path)
-  end
 end
 
 def select_file
@@ -47,8 +30,6 @@ def display_files_in_directory
     directory = LsDirectory.new(directory_path:, include_hidden_file: @option['a'], reverse_order: @option['r'])
     files_for_display = directory.files
     break if files_for_display.empty?
-
-    puts "#{directory_path}:" if @argv.length > 1
 
     if @option['l']
       puts "total #{directory.blocks_sum}"
@@ -67,8 +48,6 @@ def print_files(files)
     file_array[-1] += "\n"
     file_array.each { |f| print f }
   end
-
-  puts "\n" if multiple_argv?
 end
 
 # 配列の各要素のサイズを揃える
@@ -91,7 +70,6 @@ def print_files_details(directory, files_for_display)
     print file.detail
     puts file_name
   end
-  puts "\n" if multiple_argv?
 end
 
 main
