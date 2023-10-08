@@ -33,19 +33,19 @@ class LsFile
   end
 
   def link_count
-    stat.nlink.to_s
+    stat.nlink
   end
 
   def owner_name
-    Etc.getpwuid(stat.uid).name.to_s
+    Etc.getpwuid(stat.uid).name
   end
 
   def group_name
-    Etc.getgrgid(stat.gid).name.to_s
+    Etc.getgrgid(stat.gid).name
   end
 
   def byte_size
-    stat.size.to_s
+    stat.size
   end
 
   def time_stamp
@@ -54,7 +54,10 @@ class LsFile
 
   def detail
     "#{type}#{permission}#{display_extended_attribute}\s" \
-      "#{link_count.rjust(@nlink_length)}\s#{owner_name.rjust(@user_length)}\s\s#{group_name.rjust(@group_length)}\s\s#{byte_size.rjust(@size_length)}\s" \
+      "#{link_count.to_s.rjust(@nlink_length)}\s" \
+      "#{owner_name.rjust(@user_length)}\s\s" \
+      "#{group_name.rjust(@group_length)}\s\s" \
+      "#{byte_size.to_s.rjust(@size_length)}\s" \
       "#{time_stamp}\s"
   end
 
