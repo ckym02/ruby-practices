@@ -11,32 +11,21 @@ require_relative 'ls_directory'
 COLUMNS_NUMBER = 3
 
 def main
-  @option = ARGV.getopts('arl')
-  @argv = ['.']
+  option = ARGV.getopts('arl')
 
-  display_files_in_directory
+  display_files_in_directory('.', option)
 end
 
-def select_file
-  @argv.select { |file_path| File.file?(file_path) }
-end
+def display_files_in_directory(directory_path, option)
+  directory = LsDirectory.new(directory_path:, include_hidden_file: option['a'], reverse_order: option['r'])
+  files_for_display = directory.files
+  return if files_for_display.empty?
 
-def select_directory
-  @argv.select { |file_path| File.directory?(file_path) }
-end
-
-def display_files_in_directory
-  select_directory.each do |directory_path|
-    directory = LsDirectory.new(directory_path:, include_hidden_file: @option['a'], reverse_order: @option['r'])
-    files_for_display = directory.files
-    break if files_for_display.empty?
-
-    if @option['l']
-      puts "total #{directory.blocks_sum}"
-      print_files_details(directory, files_for_display)
-    else
-      print_files(files_for_display)
-    end
+  if option['l']
+    puts "total #{directory.blocks_sum}"
+    print_files_details(directory, files_for_display)
+  else
+    print_files(files_for_display)
   end
 end
 
