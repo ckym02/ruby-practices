@@ -46,9 +46,9 @@ end
 
 # 列ごとの幅を揃える
 def adjust_width(file_array)
-  file_array.each_with_object([]) do |array, new_array|
+  file_array.map do |array|
     max_num = array.map(&:length).max
-    new_array << array.map { |file| "#{file.ljust(max_num)}\s\s" }
+    array.map { |file| "#{file.ljust(max_num)}\s\s" }
   end
 end
 
