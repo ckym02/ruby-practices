@@ -12,15 +12,15 @@ class LsDirectory
   end
 
   def exclude_hidden_file
-    Dir.foreach(@directory_path).to_a.reject { |f| f.start_with?('.') }.sort
+    sort_files.reject { |f| f.start_with?('.') }
   end
 
-  def include_hidden_file
+  def sort_files
     Dir.foreach(@directory_path).to_a.sort
   end
 
   def files
-    files = @include_hidden_file ? include_hidden_file : exclude_hidden_file
+    files = @include_hidden_file ? sort_files : exclude_hidden_file
     @reverse_order ? files.reverse : files
   end
 
