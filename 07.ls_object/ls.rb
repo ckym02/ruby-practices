@@ -18,20 +18,22 @@ end
 
 def display_files_in_directory(directory_path, option)
   directory = LsDirectory.new(directory_path:, include_hidden_file: option['a'], reverse_order: option['r'])
-  files_for_display = directory.files
-  return if files_for_display.empty?
+  files_in_directory = directory.files
+  return if files_in_directory.empty?
 
   if option['l']
     puts "total #{directory.blocks_sum}"
-    print_files_details(directory, files_for_display)
+    print_files_details(files_in_directory)
   else
-    print_files(files_for_display)
+    print_files(files_in_directory)
   end
 end
 
-def print_files(files)
-  rows_number = files.length.ceildiv(COLUMNS_NUMBER)
-  transposed_files = adjust_width(align_array_size(rows_number, files).each_slice(rows_number)).transpose
+def print_files(files_in_directory)
+  rows_number = files_in_directory.length.ceildiv(COLUMNS_NUMBER)
+  max_num = files_in_directory.map { |file| file.file_name.length }.max
+  adjusted_files = adjust_width(align_array_size(rows_number, files_in_directory), max_num)
+  transposed_files = adjusted_files.each_slice(rows_number).to_a.transpose
 
   transposed_files.each do |file_array|
     file_array[-1] += "\n"
@@ -39,26 +41,44 @@ def print_files(files)
   end
 end
 
-# 配列の各要素のサイズを揃える
 def align_array_size(rows_number, files)
-  (files.length % rows_number).zero? ? files : files + Array.new(rows_number - files.length % rows_number, '')
-end
-
-# 列ごとの幅を揃える
-def adjust_width(file_array)
-  file_array.map do |array|
-    max_num = array.map(&:length).max
-    array.map { |file| "#{file.ljust(max_num)}\s\s" }
+  if (files.length % rows_number).zero?
+    files
+  else
+    files + Array.new(rows_number - files.length % rows_number, LsFile.new(file_path: '', file_name: ''))
   end
 end
 
-def print_files_details(directory, files_for_display)
-  max_length = directory.calc_max_length_of_file_stat
-  files_for_display.each do |file_name|
-    file = LsFile.new(file_path: "#{directory.directory_path}/#{file_name}", stat_max_length: max_length)
-    print file.detail
-    puts file_name
+def adjust_width(file_array, max_num)
+  file_array.map { |file| "#{file.file_name.ljust(max_num)}\s\s" }
+end
+
+def print_files_details(files_in_directory)
+  stat_max_length = calc_max_length_of_file_stat(files_in_directory)
+  files_in_directory.each do |file|
+    print file_detail(file, stat_max_length)
+    puts file.file_name
   end
+end
+
+def file_detail(file, stat_max_length)
+  "#{file.type}#{file.permission}#{file.display_extended_attribute}\s" \
+    "#{file.link_count.to_s.rjust(stat_max_length[:nlink])}\s" \
+    "#{file.owner_name.rjust(stat_max_length[:user])}\s\s" \
+    "#{file.group_name.rjust(stat_max_length[:group])}\s\s" \
+    "#{file.byte_size.to_s.rjust(stat_max_length[:size])}\s" \
+    "#{file.time_stamp}\s"
+end
+
+def calc_max_length_of_file_stat(files)
+  max = { nlink: 0, user: 0, group: 0, size: 0 }
+  files.map do |file|
+    max[:nlink] = file.link_count.to_s.length if max[:nlink] < file.link_count.to_s.length
+    max[:user] = file.owner_name.length if max[:user] < file.owner_name.length
+    max[:group] = file.group_name.length if max[:group] < file.group_name.length
+    max[:size] = file.byte_size.to_s.length if max[:size] < file.byte_size.to_s.length
+  end
+  max
 end
 
 main

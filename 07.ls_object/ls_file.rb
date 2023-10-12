@@ -12,12 +12,11 @@ class LsFile
     '7' => 'rwx'
   }.freeze
 
-  def initialize(file_path:, stat_max_length: {})
+  attr_reader :file_name
+
+  def initialize(file_path:, file_name:)
     @file_path = file_path
-    @nlink_length = stat_max_length[:nlink] || 0
-    @user_length = stat_max_length[:user] || 0
-    @group_length = stat_max_length[:group] || 0
-    @size_length = stat_max_length[:size] || 0
+    @file_name = file_name
   end
 
   def stat
@@ -52,13 +51,8 @@ class LsFile
     "#{stat.mtime.month.to_s.rjust(2)}\s#{stat.mtime.day.to_s.rjust(2)}\s#{stat.mtime.strftime('%H:%M')}"
   end
 
-  def detail
-    "#{type}#{permission}#{display_extended_attribute}\s" \
-      "#{link_count.to_s.rjust(@nlink_length)}\s" \
-      "#{owner_name.rjust(@user_length)}\s\s" \
-      "#{group_name.rjust(@group_length)}\s\s" \
-      "#{byte_size.to_s.rjust(@size_length)}\s" \
-      "#{time_stamp}\s"
+  def blocks
+    stat.blocks
   end
 
   def display_extended_attribute
