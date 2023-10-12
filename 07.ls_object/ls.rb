@@ -17,8 +17,8 @@ def main
 end
 
 def display_files_in_directory(directory_path, option)
-  directory = LsDirectory.new(directory_path:, include_hidden_file: option['a'], reverse_order: option['r'])
-  files_in_directory = directory.files
+  directory = LsDirectory.new(directory_path:, hidden_files_presence: option['a'], reversed_order: option['r'])
+  files_in_directory = directory.file_lists
   return if files_in_directory.empty?
 
   if option['l']

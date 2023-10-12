@@ -5,13 +5,13 @@ require_relative 'ls_file'
 class LsDirectory
   attr_reader :directory_path
 
-  def initialize(directory_path:, include_hidden_file: true, reverse_order: false)
+  def initialize(directory_path:, hidden_files_presence: true, reversed_order: false)
     @directory_path = directory_path
-    @include_hidden_file = include_hidden_file
-    @reverse_order = reverse_order
+    @hidden_files_presence = hidden_files_presence
+    @reversed_order = reversed_order
   end
 
-  def exclude_hidden_file
+  def exclude_hidden_files
     sort_files.reject { |f| f.start_with?('.') }
   end
 
@@ -19,13 +19,13 @@ class LsDirectory
     Dir.foreach(@directory_path).to_a.sort
   end
 
-  def files
-    filtered_files = @include_hidden_file ? sort_files : exclude_hidden_file
-    ordered_files = @reverse_order ? filtered_files.reverse : filtered_files
+  def file_lists
+    filtered_files = @hidden_files_presence ? sort_files : exclude_hidden_file
+    ordered_files = @reversed_order ? filtered_files.reverse : filtered_files
     ordered_files.map { |file| LsFile.new(file_path: "#{@directory_path}/#{file}", file_name: file) }
   end
 
   def blocks_sum
-    files.map(&:blocks).sum
+    file_lists.map(&:blocks).sum
   end
 end
