@@ -36,16 +36,17 @@ def print_files(files_in_directory)
   transposed_files = adjusted_files.each_slice(rows_number).to_a.transpose
 
   transposed_files.each do |file_array|
-    file_array[-1] += "\n"
     file_array.each { |f| print f }
+    print "\n"
   end
 end
 
 def align_array_size(rows_number, files)
-  if (files.length % rows_number).zero?
+  modulo_files = files.length % rows_number
+  if modulo_files.zero?
     files
   else
-    files + Array.new(rows_number - files.length % rows_number, LsFile.new(file_path: '', file_name: ''))
+    files + Array.new(rows_number - modulo_files, LsFile.new(file_path: '', file_name: ''))
   end
 end
 
