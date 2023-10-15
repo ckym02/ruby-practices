@@ -19,10 +19,6 @@ class LsFile
     @file_name = file_name
   end
 
-  def stat
-    File.stat(@file_path.to_s)
-  end
-
   def type
     stat.ftype == 'file' ? '-' : stat.ftype[0]
   end
@@ -59,6 +55,12 @@ class LsFile
     return "\s" if extended_attributes.empty?
 
     '@'
+  end
+
+  private
+
+  def stat
+    File.stat(@file_path.to_s)
   end
 
   def extended_attributes
