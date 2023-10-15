@@ -3,8 +3,6 @@
 require_relative 'ls_file'
 
 class LsDirectory
-  attr_reader :directory_path
-
   def initialize(directory_path:, hidden_file_presence: true, reversed_order: false)
     @directory_path = directory_path
     @hidden_file_presence = hidden_file_presence
