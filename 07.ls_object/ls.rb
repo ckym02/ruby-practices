@@ -7,7 +7,6 @@ require 'etc'
 require_relative 'ls_file'
 require_relative 'ls_directory'
 
-# 列数
 COLUMNS_NUMBER = 3
 
 def main
@@ -17,7 +16,7 @@ def main
 end
 
 def display_files_in_directory(directory_path, option)
-  directory = LsDirectory.new(directory_path:, hidden_files_presence: option['a'], reversed_order: option['r'])
+  directory = LsDirectory.new(directory_path:, hidden_file_presence: option['a'], reversed_order: option['r'])
   files_in_directory = directory.file_lists
   return if files_in_directory.empty?
 
@@ -46,7 +45,7 @@ def align_array_size(rows_number, files)
   if modulo_files.zero?
     files
   else
-    files + Array.new(rows_number - modulo_files, LsFile.new(file_path: '', file_name: ''))
+    files + Array.new(rows_number - modulo_files, LsFile.new(directory_path: '', file_name: ''))
   end
 end
 
@@ -63,12 +62,16 @@ def print_files_details(files_in_directory)
 end
 
 def file_detail(file, stat_max_length)
-  "#{file.type}#{file.permission}#{file.display_extended_attribute}\s" \
+  "#{file.type}#{file.permission}#{display_extended_attribute(file)}\s" \
     "#{file.link_count.to_s.rjust(stat_max_length[:nlink])}\s" \
     "#{file.owner_name.rjust(stat_max_length[:user])}\s\s" \
     "#{file.group_name.rjust(stat_max_length[:group])}\s\s" \
     "#{file.byte_size.to_s.rjust(stat_max_length[:size])}\s" \
-    "#{file.time_stamp}\s"
+    "#{time_stamp(file)}\s"
+end
+
+def time_stamp(file)
+  "#{file.modify_time.month.to_s.rjust(2)}\s#{file.modify_time.day.to_s.rjust(2)}\s#{file.modify_time.strftime('%H:%M')}"
 end
 
 def calc_max_length_of_file_stat(files)
@@ -80,6 +83,12 @@ def calc_max_length_of_file_stat(files)
     max[:size] = file.byte_size.to_s.length if max[:size] < file.byte_size.to_s.length
   end
   max
+end
+
+def display_extended_attribute(file)
+  return "\s" if file.extended_attributes.empty?
+
+  '@'
 end
 
 main

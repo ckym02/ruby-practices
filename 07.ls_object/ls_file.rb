@@ -14,8 +14,8 @@ class LsFile
 
   attr_reader :file_name
 
-  def initialize(file_path:, file_name:)
-    @file_path = file_path
+  def initialize(directory_path:, file_name:)
+    @file_path = "#{directory_path}/#{file_name}"
     @file_name = file_name
   end
 
@@ -43,27 +43,21 @@ class LsFile
     stat.size
   end
 
-  def time_stamp
-    "#{stat.mtime.month.to_s.rjust(2)}\s#{stat.mtime.day.to_s.rjust(2)}\s#{stat.mtime.strftime('%H:%M')}"
+  def modify_time
+    stat.mtime
   end
 
   def blocks
     stat.blocks
   end
 
-  def display_extended_attribute
-    return "\s" if extended_attributes.empty?
-
-    '@'
+  def extended_attributes
+    `xattr "#{@file_path}"`
   end
 
   private
 
   def stat
     File.stat(@file_path.to_s)
-  end
-
-  def extended_attributes
-    `xattr "#{@file_path}"`
   end
 end
