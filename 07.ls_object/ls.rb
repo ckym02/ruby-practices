@@ -17,7 +17,7 @@ end
 
 def display_files_in_directory(directory_path, option)
   directory = LsDirectory.new(directory_path:, hidden_file_presence: option['a'], reversed_order: option['r'])
-  files_in_directory = directory.file_lists
+  files_in_directory = directory.ls_files
   return if files_in_directory.empty?
 
   if option['l']
@@ -56,21 +56,21 @@ end
 def print_files_details(files_in_directory)
   stat_max_length = calc_max_length_of_file_stat(files_in_directory)
   files_in_directory.each do |file|
-    print file_detail(file, stat_max_length)
+    print build_file_detail(file, stat_max_length)
     puts file.file_name
   end
 end
 
-def file_detail(file, stat_max_length)
+def build_file_detail(file, stat_max_length)
   "#{file.type}#{file.permission}#{display_extended_attribute(file)}\s" \
     "#{file.link_count.to_s.rjust(stat_max_length[:nlink])}\s" \
     "#{file.owner_name.rjust(stat_max_length[:user])}\s\s" \
     "#{file.group_name.rjust(stat_max_length[:group])}\s\s" \
     "#{file.byte_size.to_s.rjust(stat_max_length[:size])}\s" \
-    "#{time_stamp(file)}\s"
+    "#{build_time_stamp(file)}\s"
 end
 
-def time_stamp(file)
+def build_time_stamp(file)
   "#{file.modify_time.month.to_s.rjust(2)}\s#{file.modify_time.day.to_s.rjust(2)}\s#{file.modify_time.strftime('%H:%M')}"
 end
 

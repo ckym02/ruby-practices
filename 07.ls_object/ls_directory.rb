@@ -9,14 +9,14 @@ class LsDirectory
     @reversed_order = reversed_order
   end
 
-  def file_lists
+  def ls_files
     filtered_files = @hidden_file_presence ? sort_files : exclude_hidden_files
     ordered_files = @reversed_order ? filtered_files.reverse : filtered_files
     ordered_files.map { |file| LsFile.new(directory_path: @directory_path, file_name: file) }
   end
 
   def blocks_sum
-    file_lists.sum(&:blocks)
+    ls_files.sum(&:blocks)
   end
 
   private
