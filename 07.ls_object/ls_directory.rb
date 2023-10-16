@@ -16,7 +16,7 @@ class LsDirectory
   end
 
   def blocks_sum
-    file_lists.map(&:blocks).sum
+    file_lists.sum(&:blocks)
   end
 
   private

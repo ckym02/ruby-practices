@@ -76,7 +76,7 @@ end
 
 def calc_max_length_of_file_stat(files)
   max = { nlink: 0, user: 0, group: 0, size: 0 }
-  files.map do |file|
+  files.each do |file|
     max[:nlink] = file.link_count.to_s.length if max[:nlink] < file.link_count.to_s.length
     max[:user] = file.owner_name.length if max[:user] < file.owner_name.length
     max[:group] = file.group_name.length if max[:group] < file.group_name.length
