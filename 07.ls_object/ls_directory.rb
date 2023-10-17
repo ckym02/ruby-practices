@@ -10,8 +10,8 @@ class LsDirectory
   end
 
   def ls_files
-    filtered_files = @hidden_file_presence ? sort_files : exclude_hidden_files
-    ordered_files = @reversed_order ? filtered_files.reverse : filtered_files
+    filtered_files = @hidden_file_presence ? directory_files : exclude_hidden_files
+    ordered_files = @reversed_order ? filtered_files.sort.reverse : filtered_files.sort
     ordered_files.map { |file| LsFile.new(@directory_path, file) }
   end
 
@@ -22,10 +22,10 @@ class LsDirectory
   private
 
   def exclude_hidden_files
-    sort_files.reject { |f| f.start_with?('.') }
+    directory_files.reject { |f| f.start_with?('.') }
   end
 
-  def sort_files
-    Dir.foreach(@directory_path).to_a.sort
+  def directory_files
+    Dir.foreach(@directory_path).to_a
   end
 end
