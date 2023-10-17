@@ -64,14 +64,14 @@ end
 def build_file_detail(file, stat_max_length)
   "#{file.type}#{file.permission}#{display_extended_attribute(file)}\s" \
     "#{file.link_count.to_s.rjust(stat_max_length[:nlink])}\s" \
-    "#{file.owner_name.rjust(stat_max_length[:user])}\s\s" \
-    "#{file.group_name.rjust(stat_max_length[:group])}\s\s" \
+    "#{file.owner_name.ljust(stat_max_length[:user])}\s\s" \
+    "#{file.group_name.ljust(stat_max_length[:group])}\s\s" \
     "#{file.byte_size.to_s.rjust(stat_max_length[:size])}\s" \
     "#{build_time_stamp(file)}\s"
 end
 
 def build_time_stamp(file)
-  "#{file.modify_time.month.to_s.rjust(2)}\s#{file.modify_time.day.to_s.rjust(2)}\s#{file.modify_time.strftime('%H:%M')}"
+  file.modify_time.strftime('%_m %_d %H:%M')
 end
 
 def calc_max_length_of_file_stat(files)
