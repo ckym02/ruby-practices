@@ -25,7 +25,8 @@ class LsFile
   end
 
   def permission
-    "#{PERMISSION[@stat.mode.to_s(8)[-3]]}#{PERMISSION[@stat.mode.to_s(8)[-2]]}#{PERMISSION[@stat.mode.to_s(8)[-1]]}"
+    mode = @stat.mode.to_s(8)
+    "#{PERMISSION[mode[-3]]}#{PERMISSION[mode[-2]]}#{PERMISSION[mode[-1]]}"
   end
 
   def link_count
