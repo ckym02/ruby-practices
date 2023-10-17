@@ -3,7 +3,7 @@
 require_relative 'ls_file'
 
 class LsDirectory
-  def initialize(directory_path:, hidden_file_presence: true, reversed_order: false)
+  def initialize(directory_path, hidden_file_presence: true, reversed_order: false)
     @directory_path = directory_path
     @hidden_file_presence = hidden_file_presence
     @reversed_order = reversed_order
@@ -12,7 +12,7 @@ class LsDirectory
   def ls_files
     filtered_files = @hidden_file_presence ? sort_files : exclude_hidden_files
     ordered_files = @reversed_order ? filtered_files.reverse : filtered_files
-    ordered_files.map { |file| LsFile.new(directory_path: @directory_path, file_name: file) }
+    ordered_files.map { |file| LsFile.new(@directory_path, file) }
   end
 
   def blocks_sum

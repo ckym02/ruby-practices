@@ -16,7 +16,7 @@ def main
 end
 
 def display_files_in_directory(directory_path, option)
-  directory = LsDirectory.new(directory_path:, hidden_file_presence: option['a'], reversed_order: option['r'])
+  directory = LsDirectory.new(directory_path, hidden_file_presence: option['a'], reversed_order: option['r'])
   files_in_directory = directory.ls_files
   return if files_in_directory.empty?
 
@@ -45,7 +45,7 @@ def align_array_size(rows_number, files)
   if modulo_files.zero?
     files
   else
-    files + Array.new(rows_number - modulo_files, LsFile.new(directory_path: '', file_name: ''))
+    files + Array.new(rows_number - modulo_files, LsFile.new('', ''))
   end
 end
 
