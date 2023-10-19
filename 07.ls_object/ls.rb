@@ -17,25 +17,25 @@ end
 
 def display_files_in_directory(directory_path, option)
   directory = LsDirectory.new(directory_path, hidden_file_presence: option['a'], reversed_order: option['r'])
-  files_in_directory = directory.ls_files
-  return if files_in_directory.empty?
+  ls_files = directory.ls_files
+  return if ls_files.empty?
 
   if option['l']
     puts "total #{directory.blocks_sum}"
-    print_files_details(files_in_directory)
+    print_files_details(ls_files)
   else
-    print_files(files_in_directory)
+    print_files(ls_files)
   end
 end
 
-def print_files(files_in_directory)
-  rows_number = files_in_directory.length.ceildiv(COLUMNS_NUMBER)
-  max_num = files_in_directory.map { |file| file.file_name.length }.max
-  adjusted_files = adjust_width(align_array_size(rows_number, files_in_directory), max_num)
+def print_files(ls_files)
+  rows_number = ls_files.length.ceildiv(COLUMNS_NUMBER)
+  max_num = ls_files.map { |file| file.file_name.length }.max
+  adjusted_files = adjust_width(align_array_size(rows_number, ls_files), max_num)
   transposed_files = adjusted_files.each_slice(rows_number).to_a.transpose
 
-  transposed_files.each do |file_array|
-    file_array.each { |f| print f }
+  transposed_files.each do |files|
+    files.each { |f| print f }
     print "\n"
   end
 end
@@ -53,9 +53,9 @@ def adjust_width(file_array, max_num)
   file_array.map { |file| "#{file.file_name.ljust(max_num)}\s\s" }
 end
 
-def print_files_details(files_in_directory)
-  stat_max_length = calc_max_length_of_file_stat(files_in_directory)
-  files_in_directory.each do |file|
+def print_files_details(ls_files)
+  stat_max_length = calc_max_length_of_file_stat(ls_files)
+  ls_files.each do |file|
     print build_file_detail(file, stat_max_length)
     puts file.file_name
   end
