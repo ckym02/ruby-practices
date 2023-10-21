@@ -30,34 +30,29 @@ end
 
 def print_files(ls_files)
   rows_number = ls_files.length.ceildiv(COLUMNS_NUMBER)
-  max_num = ls_files.map { |file| file.file_name.length }.max
-  adjusted_files = adjust_width(align_array_size(rows_number, ls_files), max_num)
-  transposed_files = adjusted_files.each_slice(rows_number).to_a.transpose
+  aligned_files = align_array_size(rows_number, ls_files)
+  transposed_files = aligned_files.each_slice(rows_number).to_a.transpose
 
+  max_num = ls_files.map { |file| file.file_name.length }.max
   transposed_files.each do |files|
-    files.each { |f| print f }
+    files.each { |file| print "#{file.file_name.ljust(max_num)}\s\s" }
     print "\n"
   end
 end
 
-def align_array_size(rows_number, files)
-  modulo_files = files.length % rows_number
+def align_array_size(rows_number, ls_files)
+  modulo_files = ls_files.length % rows_number
   if modulo_files.zero?
-    files
+    ls_files
   else
-    files + Array.new(rows_number - modulo_files, LsFile.new('', ''))
+    ls_files + Array.new(rows_number - modulo_files, LsFile.new('', ''))
   end
-end
-
-def adjust_width(file_array, max_num)
-  file_array.map { |file| "#{file.file_name.ljust(max_num)}\s\s" }
 end
 
 def print_files_details(ls_files)
   stat_max_length = calc_max_length_of_file_stat(ls_files)
   ls_files.each do |file|
-    print build_file_detail(file, stat_max_length)
-    puts file.file_name
+    puts build_file_detail(file, stat_max_length)
   end
 end
 
@@ -67,7 +62,8 @@ def build_file_detail(file, stat_max_length)
     "#{file.owner_name.ljust(stat_max_length[:user])}\s\s" \
     "#{file.group_name.ljust(stat_max_length[:group])}\s\s" \
     "#{file.byte_size.to_s.rjust(stat_max_length[:size])}\s" \
-    "#{build_time_stamp(file)}\s"
+    "#{build_time_stamp(file)}\s" \
+    "#{file.file_name}"
 end
 
 def build_time_stamp(file)
