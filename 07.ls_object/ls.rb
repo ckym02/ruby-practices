@@ -35,7 +35,7 @@ def print_files(ls_files)
 
   file_name_max_length = ls_files.map { |file| file.file_name.length }.max
   transposed_files.each do |files|
-    files.each { |file| print "#{file.file_name.ljust(file_name_max_length)}\s\s" }
+    files.each { |file| print "#{file&.file_name&.ljust(file_name_max_length)}\s\s" }
     print "\n"
   end
 end
@@ -45,7 +45,7 @@ def align_array_size(rows_number, ls_files)
   if modulo_files.zero?
     ls_files
   else
-    ls_files + Array.new(rows_number - modulo_files, LsFile.new('', ''))
+    ls_files + Array.new(rows_number - modulo_files)
   end
 end
 
