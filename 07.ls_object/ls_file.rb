@@ -26,7 +26,11 @@ class LsFile
 
   def permission
     mode = @stat.mode.to_s(8)
-    "#{PERMISSION[mode[-3]]}#{PERMISSION[mode[-2]]}#{PERMISSION[mode[-1]]}"
+    (-3..-1)
+      .map do |i|
+        PERMISSION[mode[i]]
+      end
+      .join
   end
 
   def link_count
