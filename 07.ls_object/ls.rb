@@ -67,7 +67,7 @@ def calc_max_length_of_file_stat(ls_files)
 end
 
 def build_file_detail(ls_file, max_lengths)
-  "#{ls_file.type}#{ls_file.permission}#{display_extended_attribute(ls_file)}\s" \
+  "#{ls_file.type}#{ls_file.permission}#{return_extended_attribute_symbol(ls_file)}\s" \
     "#{ls_file.link_count.to_s.rjust(max_lengths[:nlink])}\s" \
     "#{ls_file.owner_name.ljust(max_lengths[:user])}\s\s" \
     "#{ls_file.group_name.ljust(max_lengths[:group])}\s\s" \
@@ -76,7 +76,7 @@ def build_file_detail(ls_file, max_lengths)
     "#{ls_file.name}"
 end
 
-def display_extended_attribute(ls_file)
+def return_extended_attribute_symbol(ls_file)
   return "\s" if ls_file.extended_attributes.empty?
 
   '@'
