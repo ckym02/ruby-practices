@@ -12,11 +12,11 @@ class LsFile
     '7' => 'rwx'
   }.freeze
 
-  attr_reader :file_name
+  attr_reader :name
 
   def initialize(directory_path, file_name)
     @directory_path = directory_path
-    @file_name = file_name
+    @name = file_name
     @stat = File.stat(file_path.to_s)
   end
 
@@ -60,6 +60,6 @@ class LsFile
   private
 
   def file_path
-    File.join(@directory_path, @file_name)
+    File.join(@directory_path, @name)
   end
 end

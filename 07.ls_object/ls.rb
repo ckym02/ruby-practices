@@ -32,9 +32,9 @@ def print_files(ls_files)
   aligned_files = align_array_size(rows_number, ls_files)
   transposed_files = aligned_files.each_slice(rows_number).to_a.transpose
 
-  file_name_max_length = ls_files.map { |ls_file| ls_file.file_name.length }.max
+  file_name_max_length = ls_files.map { |ls_file| ls_file.name.length }.max
   transposed_files.each do |ls_file_lists|
-    ls_file_lists.each { |ls_file| print "#{ls_file&.file_name&.ljust(file_name_max_length)}\s\s" }
+    ls_file_lists.each { |ls_file| print "#{ls_file&.name&.ljust(file_name_max_length)}\s\s" }
     print "\n"
   end
 end
@@ -73,7 +73,7 @@ def build_file_detail(ls_file, max_lengths)
     "#{ls_file.group_name.ljust(max_lengths[:group])}\s\s" \
     "#{ls_file.byte_size.to_s.rjust(max_lengths[:size])}\s" \
     "#{build_time_stamp(ls_file)}\s" \
-    "#{ls_file.file_name}"
+    "#{ls_file.name}"
 end
 
 def display_extended_attribute(ls_file)
