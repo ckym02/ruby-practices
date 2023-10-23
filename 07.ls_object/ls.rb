@@ -32,9 +32,9 @@ def print_files(ls_files)
   aligned_files = align_array_size(rows_number, ls_files)
   transposed_files = aligned_files.each_slice(rows_number).to_a.transpose
 
-  file_name_max_length = ls_files.map { |file| file.file_name.length }.max
-  transposed_files.each do |files|
-    files.each { |file| print "#{file&.file_name&.ljust(file_name_max_length)}\s\s" }
+  file_name_max_length = ls_files.map { |ls_file| ls_file.file_name.length }.max
+  transposed_files.each do |ls_file_lists|
+    ls_file_lists.each { |ls_file| print "#{ls_file&.file_name&.ljust(file_name_max_length)}\s\s" }
     print "\n"
   end
 end
@@ -49,41 +49,41 @@ def align_array_size(rows_number, ls_files)
 end
 
 def print_files_details(ls_files)
-  stat_max_length = calc_max_length_of_file_stat(ls_files)
-  ls_files.each do |file|
-    puts build_file_detail(file, stat_max_length)
+  max_lengths = calc_max_length_of_file_stat(ls_files)
+  ls_files.each do |ls_file|
+    puts build_file_detail(ls_file, max_lengths)
   end
 end
 
-def calc_max_length_of_file_stat(files)
+def calc_max_length_of_file_stat(ls_files)
   max = { nlink: 0, user: 0, group: 0, size: 0 }
-  files.each do |file|
-    max[:nlink] = file.link_count.to_s.length if max[:nlink] < file.link_count.to_s.length
-    max[:user] = file.owner_name.length if max[:user] < file.owner_name.length
-    max[:group] = file.group_name.length if max[:group] < file.group_name.length
-    max[:size] = file.byte_size.to_s.length if max[:size] < file.byte_size.to_s.length
+  ls_files.each do |ls_file|
+    max[:nlink] = ls_file.link_count.to_s.length if max[:nlink] < ls_file.link_count.to_s.length
+    max[:user] = ls_file.owner_name.length if max[:user] < ls_file.owner_name.length
+    max[:group] = ls_file.group_name.length if max[:group] < ls_file.group_name.length
+    max[:size] = ls_file.byte_size.to_s.length if max[:size] < ls_file.byte_size.to_s.length
   end
   max
 end
 
-def build_file_detail(file, stat_max_length)
-  "#{file.type}#{file.permission}#{display_extended_attribute(file)}\s" \
-    "#{file.link_count.to_s.rjust(stat_max_length[:nlink])}\s" \
-    "#{file.owner_name.ljust(stat_max_length[:user])}\s\s" \
-    "#{file.group_name.ljust(stat_max_length[:group])}\s\s" \
-    "#{file.byte_size.to_s.rjust(stat_max_length[:size])}\s" \
-    "#{build_time_stamp(file)}\s" \
-    "#{file.file_name}"
+def build_file_detail(ls_file, max_lengths)
+  "#{ls_file.type}#{ls_file.permission}#{display_extended_attribute(ls_file)}\s" \
+    "#{ls_file.link_count.to_s.rjust(max_lengths[:nlink])}\s" \
+    "#{ls_file.owner_name.ljust(max_lengths[:user])}\s\s" \
+    "#{ls_file.group_name.ljust(max_lengths[:group])}\s\s" \
+    "#{ls_file.byte_size.to_s.rjust(max_lengths[:size])}\s" \
+    "#{build_time_stamp(ls_file)}\s" \
+    "#{ls_file.file_name}"
 end
 
-def display_extended_attribute(file)
-  return "\s" if file.extended_attributes.empty?
+def display_extended_attribute(ls_file)
+  return "\s" if ls_file.extended_attributes.empty?
 
   '@'
 end
 
-def build_time_stamp(file)
-  file.modify_time.strftime('%_m %_d %H:%M')
+def build_time_stamp(ls_file)
+  ls_file.modify_time.strftime('%_m %_d %H:%M')
 end
 
 main
