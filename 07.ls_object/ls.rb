@@ -4,7 +4,6 @@
 
 require 'optparse'
 require 'etc'
-require_relative 'ls_file'
 require_relative 'ls_directory'
 
 COLUMNS_NUMBER = 3
