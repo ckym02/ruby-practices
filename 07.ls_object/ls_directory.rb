@@ -3,13 +3,14 @@
 require_relative 'ls_file'
 
 class LsDirectory
-  attr_reader :ls_files
-
   def initialize(directory_path, hidden_file_presence: true, reversed_order: false)
     @directory_path = directory_path
     @hidden_file_presence = hidden_file_presence
     @reversed_order = reversed_order
-    @ls_files = prepare_ls_files
+  end
+
+  def ls_files
+    @ls_files ||= prepare_ls_files
   end
 
   def blocks_sum
