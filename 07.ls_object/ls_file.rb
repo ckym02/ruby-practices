@@ -45,7 +45,7 @@ class LsFile
     @stat.size
   end
 
-  def modify_time
+  def modified_time
     @stat.mtime
   end
 

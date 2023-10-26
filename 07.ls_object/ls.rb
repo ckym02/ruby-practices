@@ -83,7 +83,7 @@ def return_extended_attribute_symbol(ls_file)
 end
 
 def build_time_stamp(ls_file)
-  ls_file.modify_time.strftime('%_m %_d %H:%M')
+  ls_file.modified_time.strftime('%_m %_d %H:%M')
 end
 
 main
