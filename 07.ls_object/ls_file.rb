@@ -14,9 +14,9 @@ class LsFile
 
   attr_reader :name
 
-  def initialize(directory_path, file_name)
-    @directory_path = directory_path
-    @name = file_name
+  def initialize(file_path)
+    @file_path = file_path
+    @name = File.basename(file_path)
     @stat = File.stat(file_path.to_s)
   end
 
@@ -54,12 +54,6 @@ class LsFile
   end
 
   def extended_attributes
-    `xattr "#{file_path}"`
-  end
-
-  private
-
-  def file_path
-    File.join(@directory_path, @name)
+    `xattr "#{@file_path}"`
   end
 end
