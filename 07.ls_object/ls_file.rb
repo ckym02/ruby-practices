@@ -12,12 +12,13 @@ class LsFile
     '7' => 'rwx'
   }.freeze
 
-  attr_reader :name
-
   def initialize(file_path)
     @file_path = file_path
-    @name = File.basename(file_path)
     @stat = File.stat(file_path.to_s)
+  end
+
+  def name
+    File.basename(@file_path)
   end
 
   def type
